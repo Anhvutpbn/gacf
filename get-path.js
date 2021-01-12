@@ -1,5 +1,3 @@
-
-
 const FROM_COL = 24
 const FROM_ROW = 14
 
@@ -13,7 +11,7 @@ Danger.MAP_BOMB = 3;
 Danger.MAP_ZOMEBIE = 4;
 
 Danger.minPosition = function (x) {
-    if(x <= Danger.rada) {
+    if (x <= Danger.rada) {
         return 0;
     } else {
         return x - Danger.rada;
@@ -39,15 +37,15 @@ Danger.coordinates = function () {
 
     for (let i = minRow; i < maxRow; i++) {
         for (let y = minCol; y < maxCol; y++) {
-            if(MAP[i][y] === Danger.MAP_BOMB) {
+            if (MAP[i][y] === Danger.MAP_BOMB) {
                 result = result.concat(Danger.getListBomb(y, i));
             }
 
-            if(MAP[i][y] === Danger.MAP_VIRUS) {
+            if (MAP[i][y] === Danger.MAP_VIRUS) {
                 result = result.concat(Danger.getListVirusZombie(y, i));
             }
 
-            if(MAP[i][y] === Danger.MAP_ZOMEBIE) {
+            if (MAP[i][y] === Danger.MAP_ZOMEBIE) {
                 result = result.concat(Danger.getListVirusZombie(y, i));
             }
         }
@@ -56,26 +54,26 @@ Danger.coordinates = function () {
     return result;
 }
 
-Danger.getListBomb = function (col,row) {
+Danger.getListBomb = function (col, row) {
     let mapRow = MAP.length - 1;
     let mapCol = MAP[0].length - 1;
     let result = [];
-    for(let i = 0; i < mapCol; i++) {
+    for (let i = 0; i < mapCol; i++) {
         result.push({'col': i, 'row': row})
     }
-    for(let y = 1; y < mapRow; y++) {
+    for (let y = 1; y < mapRow; y++) {
         result.push({'col': y, 'row': col})
     }
 
     return result;
 }
 
-Danger.getListVirusZombie = function (col,row) {
+Danger.getListVirusZombie = function (col, row) {
     let result = [];
-    for(let i = col - 1; i <= col + 1; i++) {
+    for (let i = col - 1; i <= col + 1; i++) {
         result.push({'col': i, 'row': row})
     }
-    for(let y = row - 1; y <= row + 1; y++) {
+    for (let y = row - 1; y <= row + 1; y++) {
         result.push({'col': col, 'row': y})
     }
     return result;
@@ -87,7 +85,7 @@ var Medic = {}
 Medic.wall = 1;
 Medic.balk = 2;
 Medic.link = 6;
-Medic.findFinishPoint = function(fromX,fromY){
+Medic.findFinishPoint = function (fromX, fromY) {
     let coordinate = [{x: fromX, y: fromY, loopIndex: 0}];
 
     // sét các tọa độ nguy hiểm thành tường đá
@@ -95,14 +93,14 @@ Medic.findFinishPoint = function(fromX,fromY){
     let loopIndex = 0;
     let flag = true;
     do {
-        if(loopIndex == 0) {
+        if (loopIndex == 0) {
             coordinate = [{x: fromX, y: fromY, loopIndex: 0}]
         } else {
             let pathTemp = [...coordinate];
             for (let index = 0; index < pathTemp.length; index++) {
                 const element = pathTemp[index];
                 let result = Medic.getCoordinates(element.x, element.y, coordinate, loopIndex)
-                if(result.status === false) {
+                if (result.status === false) {
                     flag = false
                     return result.data
                 } else {
@@ -110,7 +108,7 @@ Medic.findFinishPoint = function(fromX,fromY){
                 }
             }
         }
-        
+
         loopIndex++;
     } while (flag);
     console.log(coordinate)
@@ -118,82 +116,90 @@ Medic.findFinishPoint = function(fromX,fromY){
 }
 
 Medic.getCoordinates = function (row, col, coordinate, loopIndex) {
-    let up = { row: row, col: col - 1 }
-    let down = { row: row, col: col + 1 }
-    let left = { row: row - 1, col: col}
-    let right = { row: row + 1, col: col}
-    if(Medic.checkWall(up) 
+    let up = {row: row, col: col - 1}
+    let down = {row: row, col: col + 1}
+    let left = {row: row - 1, col: col}
+    let right = {row: row + 1, col: col}
+    if (Medic.checkWall(up)
         || Medic.checkWall(down)
         || Medic.checkWall(left)
         || Medic.checkWall(right)) {
         return {status: false, data: {row, col}};
-    } 
+    }
     let result = Medic.getStep(row, col, loopIndex, coordinate);
-    return {status: true , data: result }
+    return {status: true, data: result}
 }
 
 Medic.checkWall = function (coordinate) {
-    console.log(coordinate)
-    console.log(MAP)
-    if(MAP[coordinate.col][coordinate.row] == Medic.balk) {
+    // console.log(coordinate)
+    // console.log(MAP)
+    if (MAP[coordinate.col][coordinate.row] == Medic.balk) {
         return true;
-    } 
+    }
     return false;
 }
 
-Medic.getStep =  function (x, y, loopIndex, pathTemp){
-    let yUp = y-1
+Medic.checkAvailablePoint = function (x, y) {
+    if (MAP[y] && MAP[y][x]) {
+        let point = MAP[y][x];
+        return point === 0
+    }
+    return false;
+}
+
+Medic.getStep = function (x, y, loopIndex, pathTemp) {
+    let yUp = y - 1
     let sUp = {
         x,
-        y : yUp,
+        y: yUp,
         loopIndex
     };
 
-    let xLeft = (x-1)
+    let xLeft = (x - 1)
     let sLeft = {
         x: xLeft,
         y,
         loopIndex
     };
 
-    let xRight =(x+1)
+    let xRight = (x + 1)
     let sRight = {
         x: xRight,
         y,
         loopIndex
     };
 
-    let yDown =(y+1);
+    let yDown = (y + 1);
     let sDown = {
         x,
         y: yDown,
         loopIndex
     };
 
-    let isExistsUp = Medic.isExist(loopIndex,x,yUp, pathTemp);
-    if(!isExistsUp){
+    let isExistsUp = Medic.isExist(loopIndex, x, yUp, pathTemp);
+    if (!isExistsUp) {
         pathTemp.push(sUp);
     }
-    let isExistsLeft = Medic.isExist(loopIndex,xLeft,y, pathTemp);
-    if(!isExistsLeft){
+    let isExistsLeft = Medic.isExist(loopIndex, xLeft, y, pathTemp);
+    if (!isExistsLeft) {
         pathTemp.push(sLeft);
     }
-    let isExistsRight = Medic.isExist(loopIndex,xRight,y, pathTemp);
-    if(!isExistsRight){
+    let isExistsRight = Medic.isExist(loopIndex, xRight, y, pathTemp);
+    if (!isExistsRight) {
         pathTemp.push(sRight);
     }
-    let isExistsDown = Medic.isExist(loopIndex,x,yDown, pathTemp);
-    if(!isExistsDown){
+    let isExistsDown = Medic.isExist(loopIndex, x, yDown, pathTemp);
+    if (!isExistsDown) {
         pathTemp.push(sDown);
     }
 
     return pathTemp
 }
 
-Medic.isExist = function (loopIndex,x,y, pathTemp){
+Medic.isExist = function (loopIndex, x, y, pathTemp) {
     let isExistsUp = false
-    if( pathTemp.findIndex(element => element.x === x && element.y === y ) != -1
-        || MAP[y][x] === Medic.wall   || MAP[y][x] === Medic.balk|| MAP[y][x] === Medic.link){
+    if (pathTemp.findIndex(element => element.x === x && element.y === y) != -1
+        || MAP[y][x] === Medic.wall || MAP[y][x] === Medic.balk || MAP[y][x] === Medic.link) {
         isExistsUp = true
     }
     return isExistsUp;
@@ -201,7 +207,7 @@ Medic.isExist = function (loopIndex,x,y, pathTemp){
 
 // CLASS Phần việc tìm đường
 
-var ProcessGetDirection={}
+var ProcessGetDirection = {}
 
 // common const (edit)
 ProcessGetDirection.brick = 1;
@@ -210,11 +216,11 @@ ProcessGetDirection.link = 6;
 ProcessGetDirection.quaran = 7;
 //20.3
 
-ProcessGetDirection.findBack = function (pathFB,loopIndex,xDest,yDest){
+ProcessGetDirection.findBack = function (pathFB, loopIndex, xDest, yDest) {
     let flag = true;
     let findBackArray = [{
-        x : xDest,
-        y : yDest,
+        x: xDest,
+        y: yDest,
         loopIndex
     }]
 
@@ -283,49 +289,49 @@ ProcessGetDirection.findBack = function (pathFB,loopIndex,xDest,yDest){
     return findBackArray;
 }
 
-ProcessGetDirection.getStep =  function (x, y, loopIndex, pathTemp){
-    let yUp = y-1
+ProcessGetDirection.getStep = function (x, y, loopIndex, pathTemp) {
+    let yUp = y - 1
     let sUp = {
         x,
-        y : yUp,
+        y: yUp,
         loopIndex
     };
 
-    let xLeft = (x-1)
+    let xLeft = (x - 1)
     let sLeft = {
         x: xLeft,
         y,
         loopIndex
     };
 
-    let xRight =(x+1)
+    let xRight = (x + 1)
     let sRight = {
         x: xRight,
         y,
         loopIndex
     };
 
-    let yDown =(y+1);
+    let yDown = (y + 1);
     let sDown = {
         x,
         y: yDown,
         loopIndex
     };
 
-    let isExistsUp = ProcessGetDirection.isExist(loopIndex,x,yUp, pathTemp);
-    if(!isExistsUp){
+    let isExistsUp = ProcessGetDirection.isExist(loopIndex, x, yUp, pathTemp);
+    if (!isExistsUp) {
         pathTemp.push(sUp);
     }
-    let isExistsLeft = ProcessGetDirection.isExist(loopIndex,xLeft,y, pathTemp);
-    if(!isExistsLeft){
+    let isExistsLeft = ProcessGetDirection.isExist(loopIndex, xLeft, y, pathTemp);
+    if (!isExistsLeft) {
         pathTemp.push(sLeft);
     }
-    let isExistsRight = ProcessGetDirection.isExist(loopIndex,xRight,y, pathTemp);
-    if(!isExistsRight){
+    let isExistsRight = ProcessGetDirection.isExist(loopIndex, xRight, y, pathTemp);
+    if (!isExistsRight) {
         pathTemp.push(sRight);
     }
-    let isExistsDown = ProcessGetDirection.isExist(loopIndex,x,yDown, pathTemp);
-    if(!isExistsDown){
+    let isExistsDown = ProcessGetDirection.isExist(loopIndex, x, yDown, pathTemp);
+    if (!isExistsDown) {
         pathTemp.push(sDown);
     }
 
@@ -333,11 +339,11 @@ ProcessGetDirection.getStep =  function (x, y, loopIndex, pathTemp){
 }
 
 
-ProcessGetDirection.isExist = function (loopIndex,x,y, pathTemp){
+ProcessGetDirection.isExist = function (loopIndex, x, y, pathTemp) {
     let isExistsUp = false
     // console.log("ProcessGetDirection.map[y][x] = "+ProcessGetDirection.map[y][x])
-    if( pathTemp.findIndex(element => element.x === x && element.y === y ) != -1
-        || MAP[y][x] === ProcessGetDirection.brick   || MAP[y][x] === ProcessGetDirection.balk || MAP[y][x] === ProcessGetDirection.link){
+    if (pathTemp.findIndex(element => element.x === x && element.y === y) != -1
+        || MAP[y][x] === ProcessGetDirection.brick || MAP[y][x] === ProcessGetDirection.balk || MAP[y][x] === ProcessGetDirection.link) {
         isExistsUp = true
     }
     return isExistsUp;
@@ -352,17 +358,17 @@ ProcessGetDirection.convertDangerToWall = function (dangerCoordinates, maps) {
     return maps;
 }
 
-ProcessGetDirection.findPath = function(fromX,fromY){
+ProcessGetDirection.findPath = function (fromX, fromY) {
     let path = [];
-    if(MAP[fromY][fromX] === ProcessGetDirection.quaran) {
+    if (MAP[fromY][fromX] === ProcessGetDirection.quaran) {
         return false
     }
-    let currentPoint = Medic.findFinishPoint(fromX,fromY);
+    let currentPoint = Medic.findFinishPoint(fromX, fromY);
     console.log(currentPoint)
     let toX = currentPoint.row
     let toY = currentPoint.col
 
-    console.log('From - to '+ fromX+'-'+fromY+'---------------'+ toX+'-'+toY )
+    console.log('From - to ' + fromX + '-' + fromY + '---------------' + toX + '-' + toY)
     // sét các tọa độ nguy hiểm thành tường đá
     ProcessGetDirection.map = ProcessGetDirection.convertDangerToWall(Danger.coordinates(), MAP)
     let loopIndex = 0;
