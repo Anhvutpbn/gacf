@@ -8,7 +8,7 @@ Danger = {};
 Danger.playerRow = FROM_ROW;
 Danger.playerCol = FROM_COL;
 Danger.rada = 6;
-Danger.MAP_VIRUS = 2;
+Danger.MAP_VIRUS = 99;
 Danger.MAP_BOMB = 3;
 Danger.MAP_ZOMEBIE = 4;
 
